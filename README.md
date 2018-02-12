@@ -1,7 +1,5 @@
 # Plugin - Custom Bigquery
 
-This plugin moves data from the [Trello](https://developers.trello.com/v1.0) API to S3. Implemented for  camapigns, connected-sites connected-sites-details, conversations,  conversations-details, lists, lists-details, reports, reports-details.
-
 ## Hooks
 
 ### CustomBigQueryHook
