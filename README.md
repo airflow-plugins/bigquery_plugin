@@ -15,5 +15,5 @@ As of Airflow 1.9 and above this behavior will be default as per [this issue](ht
 
 This operator is an extension of the default BigQueryOperator [here](https://github.com/apache/incubator-airflow/blob/master/airflow/contrib/operators/bigquery_operator.py) with the addition of:
 
-- A query to the relevant __TABLES__ meta table to get destination table info before (if relevant) and after.
-- Sending a custom event type record for 'before' and 'after' to a dag and destination dataset specific specific table in "airflow" dataset. 
+- A query to the relevant \_\_TABLES\_\_ meta table to log destination table info before (if relevant) and after the main task of the operator.
+- Sending a custom event type record for 'before' and 'after' to a dag and destination dataset specific table in an "airflow" dataset in BQ. 
