@@ -177,10 +177,15 @@ class CustomBigQueryOperator(BigQueryOperator):
             Send an event record to relevant bq table (based on dag, destination table and date) with info on current state
             """
             
+            if self.use_legacy_sql:
+                seconds_since_dag_execution = "(parse_utc_usec(task_start_date)-parse_utc_usec(dag_execution_date))/1000000"
+            else:
+                seconds_since_dag_execution = "(UNIX_MICROS(safe_cast(task_start_date as timestamp))-UNIX_MICROS(safe_cast(dag_execution_date as timestamp)))/1000000"
+            
             airflow_event_sql_template = """
             select 
               *,
-              (parse_utc_usec(task_start_date)-parse_utc_usec(dag_execution_date))/1000000 as seconds_since_dag_execution,
+              {seconds_since_dag_execution} as seconds_since_dag_execution,
               if(task_hostname='airflow_scheduler','local','astro_prod') as environment              
             from
               (
@@ -210,7 +215,7 @@ class CustomBigQueryOperator(BigQueryOperator):
                 "{task_length}" as task_execution_length_seconds,
                 "{destination_project}" as destination_project,
                 "{destination_dataset}" as destination_dataset,
-                "{destination_table}" as destination_table,
+                "{destination_table}" as destination_table
               ) base_event_data
             """
             
@@ -251,7 +256,8 @@ class CustomBigQueryOperator(BigQueryOperator):
                                   airflow_event_task_instance_log_filepath = airflow_event_task_instance.log_filepath,
                                   airflow_event_task_instance_log_url = airflow_event_task_instance.log_url,
                                   airflow_event_task_instance_run_as_user = airflow_event_task_instance.run_as_user,
-                                  airflow_event_task_instance_unixname = airflow_event_task_instance.unixname
+                                  airflow_event_task_instance_unixname = airflow_event_task_instance.unixname,
+                                  seconds_since_dag_execution = seconds_since_dag_execution
                                 )
         
             print_my_msg("...send '{}' event to bq...".format(mode))
